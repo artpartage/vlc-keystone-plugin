@@ -24,10 +24,14 @@ Plugin VLC qui ajoute un filtre vidéo **Keystone** (correction de perspective) 
 
 ### Installation (macOS)
 
-1. Fermez VLC
-2. Ouvrez le Terminal
-3. Naviguez vers le dossier `dist/macos/`
-4. Exécutez :
+> **IMPORTANT :** Fermez VLC **complètement** avant l'installation. VLC ne doit pas tourner, sinon le plugin ne sera pas reconnu.
+
+1. Fermez VLC complètement
+2. Téléchargez `libkeystone_plugin.dylib` depuis les [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Copiez le fichier dans : `/Applications/VLC.app/Contents/MacOS/plugins/`
+4. Relancez VLC
+
+Ou avec le Terminal :
 ```bash
 chmod +x install.sh
 ./install.sh
@@ -41,12 +45,20 @@ codesign --sign - --force --deep /Applications/VLC.app
 
 ### Utilisation
 
-Lancez VLC avec le filtre :
+#### Méthode 1 - Préférences VLC (recommandée) :
+1. Ouvrez VLC
+2. Allez dans **Outils > Préférences** (ou VLC > Préférences sur macOS)
+3. En bas à gauche, sélectionnez **« Tout afficher »** (c'est important !)
+4. Naviguez vers **Vidéo > Filtres**
+5. Cochez **Keystone** dans la liste
+6. Cliquez **Enregistrer**
+7. Redémarrez VLC
+8. Lancez une vidéo — vous pouvez maintenant déplacer les coins avec la souris !
+
+#### Méthode 2 - Ligne de commande :
 ```bash
 open /Applications/VLC.app --args --video-filter=keystone --codec=avcodec video.mp4
 ```
-
-Ou activez-le dans : VLC > Préférences > Tout afficher > Vidéo > Filtres > cochez **Keystone**
 
 ### Contrôles souris
 
@@ -74,23 +86,18 @@ Toutes les valeurs vont de -1.0 à 1.0 (0.0 = position par défaut).
 
 ### Installation (Windows)
 
-1. Fermez VLC
-2. Téléchargez `libkeystone_plugin.dll` depuis les [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
-3. Placez le fichier dans le dossier `dist/windows/`
-4. Faites un clic droit sur `install.bat` > **Exécuter en tant qu'administrateur**
+> **IMPORTANT :** Fermez VLC **complètement** avant l'installation (vérifiez aussi la zone de notification). VLC ne doit pas tourner, sinon le plugin ne sera pas reconnu.
 
-Ou manuellement, copiez le DLL dans :
-```
-C:\Program Files\VideoLAN\VLC\plugins\video_filter\
-```
+1. Fermez VLC complètement
+2. Téléchargez `libkeystone_plugin.dll` depuis les [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Copiez le fichier dans : `C:\Program Files\VideoLAN\VLC\plugins\video_filter\`
+4. Relancez VLC
+
+Ou utilisez `install.bat` : placez le DLL dans le dossier `dist/windows/` et faites un clic droit sur `install.bat` > **Exécuter en tant qu'administrateur**
 
 ### Utilisation (Windows)
 
-```cmd
-vlc --video-filter=keystone video.mp4
-```
-
-Ou dans VLC > Outils > Préférences > Tout afficher > Vidéo > Filtres > cochez **Keystone**
+Les mêmes étapes que ci-dessus (voir [Utilisation](#utilisation)).
 
 ### Note macOS
 
@@ -118,10 +125,14 @@ VLC plugin that adds an interactive **Keystone** (perspective correction) video 
 
 ### Installation (macOS)
 
-1. Close VLC
-2. Open Terminal
-3. Navigate to the `dist/macos/` folder
-4. Run:
+> **IMPORTANT:** Close VLC **completely** before installing the plugin. VLC must not be running during installation, otherwise the plugin will not be recognized.
+
+1. Close VLC completely
+2. Download `libkeystone_plugin.dylib` from [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Copy the file to: `/Applications/VLC.app/Contents/MacOS/plugins/`
+4. Restart VLC
+
+Or using Terminal:
 ```bash
 chmod +x install.sh
 ./install.sh
@@ -135,12 +146,20 @@ codesign --sign - --force --deep /Applications/VLC.app
 
 ### Usage
 
-Launch VLC with the filter:
+#### Method 1 - VLC Preferences (recommended):
+1. Open VLC
+2. Go to **Tools > Preferences**
+3. At the bottom left, select **"Show settings: All"** (this is important!)
+4. Navigate to **Video > Filters**
+5. Check **Keystone** in the list
+6. Click **Save**
+7. Restart VLC
+8. Play a video — you can now drag the corners with your mouse!
+
+#### Method 2 - Command line:
 ```bash
 open /Applications/VLC.app --args --video-filter=keystone --codec=avcodec video.mp4
 ```
-
-Or enable it in: VLC > Preferences > Show All > Video > Filters > check **Keystone**
 
 ### Mouse Controls
 
@@ -168,23 +187,18 @@ All values range from -1.0 to 1.0 (0.0 = default position).
 
 ### Installation (Windows)
 
-1. Close VLC
-2. Download `libkeystone_plugin.dll` from [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
-3. Place the file in the `dist/windows/` folder
-4. Right-click `install.bat` > **Run as administrator**
+> **IMPORTANT:** Close VLC **completely** before installing (check your system tray too). VLC must not be running during installation, otherwise the plugin will not be recognized.
 
-Or manually copy the DLL to:
-```
-C:\Program Files\VideoLAN\VLC\plugins\video_filter\
-```
+1. Close VLC completely
+2. Download `libkeystone_plugin.dll` from [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Copy the file to: `C:\Program Files\VideoLAN\VLC\plugins\video_filter\`
+4. Restart VLC
+
+Or use `install.bat`: place the DLL in the `dist/windows/` folder and right-click `install.bat` > **Run as administrator**
 
 ### Usage (Windows)
 
-```cmd
-vlc --video-filter=keystone video.mp4
-```
-
-Or enable it in: VLC > Tools > Preferences > Show All > Video > Filters > check **Keystone**
+Same steps as above (see [Usage](#usage)).
 
 ### macOS Note
 
