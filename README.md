@@ -96,10 +96,6 @@ Ou dans VLC > Outils > Préférences > Tout afficher > Vidéo > Filtres > cochez
 
 L'option `--codec=avcodec` est recommandée sur macOS pour éviter des incompatibilités avec le décodeur VideoToolbox par défaut.
 
-### Note Windows
-
-Sur Windows, VLC utilise le décodeur matériel Direct3D11 par défaut. Le plugin gère automatiquement la conversion de format via le filtre chaîné de VLC. Aucune option supplémentaire n'est nécessaire.
-
 ---
 
 ## English
@@ -193,10 +189,6 @@ Or enable it in: VLC > Tools > Preferences > Show All > Video > Filters > check 
 ### macOS Note
 
 The `--codec=avcodec` option is recommended on macOS to avoid incompatibilities with the default VideoToolbox decoder.
-
-### Windows Note
-
-On Windows, VLC uses Direct3D11 hardware decoding by default. The plugin automatically handles the format conversion through VLC's chain filter. No additional options are needed.
 
 ---
 

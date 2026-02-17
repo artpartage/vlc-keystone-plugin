@@ -444,12 +444,15 @@ static int Create( vlc_object_t *p_this )
         return VLC_EGENERIC;
     }
 
+    /* Only accept planar YUV chromas that we can process pixel-by-pixel.
+     * On Windows, use --avcodec-hw=none to force software decoding so the
+     * decoder produces planar YUV instead of D3D11 opaque textures. */
     switch( p_filter->fmt_in.video.i_chroma )
     {
         CASE_PLANAR_YUV
             break;
         default:
-            msg_Err( p_filter, "Unsupported input chroma (%4.4s)",
+            msg_Dbg( p_filter, "Unsupported chroma (%4.4s), need planar YUV",
                      (char *)&p_filter->fmt_in.video.i_chroma );
             return VLC_EGENERIC;
     }
@@ -473,8 +476,10 @@ static int Create( vlc_object_t *p_this )
         const char *name = ppsz_corner_vars[i];
         /* Create on parent if not yet present (no-op if already exists) */
         var_Create( p_filter->obj.parent, name, VLC_VAR_FLOAT );
-        /* Read persisted value from parent; if non-zero use it,
-         * otherwise read from config/CLI via standard VLC inheritance */
+
+        /* Priority for initial value:
+         * 1. Parent variable (persisted across filter recreation)
+         * 2. Config/CLI value */
         float parent_val = var_GetFloat( p_filter->obj.parent, name );
         float val;
         if( parent_val != 0.f )
@@ -482,7 +487,8 @@ static int Create( vlc_object_t *p_this )
         else
             val = var_CreateGetFloatCommand( p_filter, name );
         vlc_atomic_init_float( pf_all[i], val );
-        /* Also persist initial value to parent */
+
+        /* Persist to parent for filter recreation */
         var_SetFloat( p_filter->obj.parent, name, val );
 
         var_AddCallback( p_filter, name, KeystoneCallback, p_sys );
@@ -536,7 +542,7 @@ static picture_t *Filter( filter_t *p_filter, picture_t *p_pic )
         return NULL;
     }
 
-    /* Load current parameter values */
+    /* Load current parameter values (atomics, set by mouse or callbacks) */
     float f_tl_x = vlc_atomic_load_float( &p_sys->f_tl_x );
     float f_tl_y = vlc_atomic_load_float( &p_sys->f_tl_y );
     float f_tr_x = vlc_atomic_load_float( &p_sys->f_tr_x );
@@ -698,43 +704,33 @@ static int Mouse( filter_t *p_filter, vlc_mouse_t *p_mouse,
         float f_dx = (float)i_dx / i_width;
         float f_dy = (float)i_dy / i_height;
 
-        vlc_atomic_float *pf_x = NULL, *pf_y = NULL;
-        const char *psz_x = NULL, *psz_y = NULL;
+        int i_x_idx = drag * 2;
+        int i_y_idx = drag * 2 + 1;
 
-        switch( drag )
-        {
-            case 0: pf_x = &p_sys->f_tl_x; pf_y = &p_sys->f_tl_y;
-                    psz_x = ppsz_corner_vars[0]; psz_y = ppsz_corner_vars[1];
-                    break;
-            case 1: pf_x = &p_sys->f_tr_x; pf_y = &p_sys->f_tr_y;
-                    psz_x = ppsz_corner_vars[2]; psz_y = ppsz_corner_vars[3];
-                    break;
-            case 2: pf_x = &p_sys->f_bl_x; pf_y = &p_sys->f_bl_y;
-                    psz_x = ppsz_corner_vars[4]; psz_y = ppsz_corner_vars[5];
-                    break;
-            case 3: pf_x = &p_sys->f_br_x; pf_y = &p_sys->f_br_y;
-                    psz_x = ppsz_corner_vars[6]; psz_y = ppsz_corner_vars[7];
-                    break;
-        }
+        vlc_atomic_float *pf_all[] = {
+            &p_sys->f_tl_x, &p_sys->f_tl_y,
+            &p_sys->f_tr_x, &p_sys->f_tr_y,
+            &p_sys->f_bl_x, &p_sys->f_bl_y,
+            &p_sys->f_br_x, &p_sys->f_br_y,
+        };
 
-        if( pf_x && pf_y )
-        {
-            float new_x = vlc_atomic_load_float( pf_x ) + f_dx;
-            float new_y = vlc_atomic_load_float( pf_y ) + f_dy;
+        float new_x = vlc_atomic_load_float( pf_all[i_x_idx] ) + f_dx;
+        float new_y = vlc_atomic_load_float( pf_all[i_y_idx] ) + f_dy;
 
-            /* Clamp to range */
-            if( new_x < -1.f ) new_x = -1.f;
-            if( new_x >  1.f ) new_x =  1.f;
-            if( new_y < -1.f ) new_y = -1.f;
-            if( new_y >  1.f ) new_y =  1.f;
+        /* Clamp to range */
+        if( new_x < -1.f ) new_x = -1.f;
+        if( new_x >  1.f ) new_x =  1.f;
+        if( new_y < -1.f ) new_y = -1.f;
+        if( new_y >  1.f ) new_y =  1.f;
 
-            vlc_atomic_store_float( pf_x, new_x );
-            vlc_atomic_store_float( pf_y, new_y );
+        vlc_atomic_store_float( pf_all[i_x_idx], new_x );
+        vlc_atomic_store_float( pf_all[i_y_idx], new_y );
 
-            /* Persist to parent for survival across filter recreation */
-            var_SetFloat( p_filter->obj.parent, psz_x, new_x );
-            var_SetFloat( p_filter->obj.parent, psz_y, new_y );
-        }
+        /* Persist to parent for filter recreation */
+        var_SetFloat( p_filter->obj.parent,
+                      ppsz_corner_vars[i_x_idx], new_x );
+        var_SetFloat( p_filter->obj.parent,
+                      ppsz_corner_vars[i_y_idx], new_y );
 
         return VLC_EGENERIC;
     }
