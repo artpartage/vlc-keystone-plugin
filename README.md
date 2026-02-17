@@ -72,9 +72,33 @@ Toutes les valeurs vont de -1.0 à 1.0 (0.0 = position par défaut).
 | `--keystone-br-y` | Coin bas-droit, décalage vertical |
 | `--no-keystone-show-handles` | Cacher les poignées interactives |
 
+### Installation (Windows)
+
+1. Fermez VLC
+2. Téléchargez `libkeystone_plugin.dll` depuis les [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Placez le fichier dans le dossier `dist/windows/`
+4. Faites un clic droit sur `install.bat` > **Exécuter en tant qu'administrateur**
+
+Ou manuellement, copiez le DLL dans :
+```
+C:\Program Files\VideoLAN\VLC\plugins\video_filter\
+```
+
+### Utilisation (Windows)
+
+```cmd
+vlc --video-filter=keystone video.mp4
+```
+
+Ou dans VLC > Outils > Préférences > Tout afficher > Vidéo > Filtres > cochez **Keystone**
+
 ### Note macOS
 
 L'option `--codec=avcodec` est recommandée sur macOS pour éviter des incompatibilités avec le décodeur VideoToolbox par défaut.
+
+### Note Windows
+
+Sur Windows, VLC utilise le décodeur matériel Direct3D11 par défaut. Le plugin gère automatiquement la conversion de format via le filtre chaîné de VLC. Aucune option supplémentaire n'est nécessaire.
 
 ---
 
@@ -146,9 +170,33 @@ All values range from -1.0 to 1.0 (0.0 = default position).
 | `--keystone-br-y` | Bottom-right corner, vertical offset |
 | `--no-keystone-show-handles` | Hide interactive handles |
 
+### Installation (Windows)
+
+1. Close VLC
+2. Download `libkeystone_plugin.dll` from [Releases](https://github.com/artpartage/vlc-keystone-plugin/releases)
+3. Place the file in the `dist/windows/` folder
+4. Right-click `install.bat` > **Run as administrator**
+
+Or manually copy the DLL to:
+```
+C:\Program Files\VideoLAN\VLC\plugins\video_filter\
+```
+
+### Usage (Windows)
+
+```cmd
+vlc --video-filter=keystone video.mp4
+```
+
+Or enable it in: VLC > Tools > Preferences > Show All > Video > Filters > check **Keystone**
+
 ### macOS Note
 
 The `--codec=avcodec` option is recommended on macOS to avoid incompatibilities with the default VideoToolbox decoder.
+
+### Windows Note
+
+On Windows, VLC uses Direct3D11 hardware decoding by default. The plugin automatically handles the format conversion through VLC's chain filter. No additional options are needed.
 
 ---
 
@@ -157,13 +205,15 @@ The `--codec=avcodec` option is recommended on macOS to avoid incompatibilities 
 | Platform | Status |
 |----------|--------|
 | macOS (Apple Silicon / arm64) | Available |
+| Windows (x86_64) | Available |
 | macOS (Intel / x86_64) | Not yet compiled |
-| Windows | Not yet compiled |
 | Linux | Not yet compiled |
 
 Built for **VLC 3.0.x**. Minor updates (3.0.x to 3.0.y) should remain compatible. A major VLC version change (e.g., 4.0) may require recompilation.
 
 ## Building from Source
+
+### macOS
 
 Requires the VLC source tree and build environment.
 
@@ -173,6 +223,30 @@ make -C modules video_filter/keystone.lo
 make -C modules libkeystone_plugin.la
 
 # The compiled plugin will be in modules/.libs/libkeystone_plugin.dylib
+```
+
+### Windows
+
+Requires MinGW-w64 (gcc) and the VLC 3.0.x SDK.
+
+1. Download VLC 3.0.x win64 archive from https://get.videolan.org/vlc/ and extract the `sdk/` folder
+2. Install MinGW-w64 (x86_64)
+3. Run:
+```cmd
+cd dist\windows
+build.bat C:\path\to\vlc-3.0.21\sdk C:\path\to\mingw64\bin\gcc.exe
+```
+
+Or compile manually:
+```bash
+gcc -shared -o libkeystone_plugin.dll \
+    -O2 -Wall -Wno-int-to-pointer-cast \
+    -D__PLUGIN__ -DMODULE_STRING=\"keystone\" -DN_(x)=x \
+    -I<VLC_SDK>/include/vlc/plugins \
+    -Isrc \
+    src/keystone.c \
+    -L<VLC_SDK>/lib \
+    -lvlccore -lm
 ```
 
 ## License
